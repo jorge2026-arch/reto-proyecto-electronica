@@ -1,0 +1,11 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro'
+import Header from '../../components/Header.astro'
+---
+<MainLayout title="Administración | electro."><Header /><main class="container-electro py-12"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-widest text-electro-yellow-dark">Área privada</p><h1 class="font-display text-4xl font-bold text-electro-navy">Panel de administración</h1><p data-admin-user class="mt-2 text-electro-muted"></p></div><div class="flex gap-3"><a href="/admin/productos" class="rounded bg-electro-yellow px-5 py-3 font-bold">Gestionar productos</a><button data-logout class="rounded border border-slate-300 px-5 py-3 font-bold">Cerrar sesión</button></div></div><div class="mt-10 grid gap-5 md:grid-cols-3"><div class="rounded-xl bg-electro-navy p-6 text-white"><p class="text-sm opacity-75">Acceso</p><strong class="mt-2 block text-2xl">Administrador</strong></div><div class="rounded-xl bg-yellow-50 p-6"><p class="text-sm text-electro-muted">Catálogo</p><strong class="mt-2 block text-2xl text-electro-navy">Productos</strong></div></div></main></MainLayout>
+<script>
+  import { api } from '../../lib/api'
+  import { clearSession, requireSession, getSession } from '../../lib/session'
+  requireSession(); const user = document.querySelector('[data-admin-user]'); const session = getSession(); if (user && session) user.textContent = `Sesión iniciada como ${session.administrador.usuario}`
+  document.querySelector('[data-logout]')?.addEventListener('click', async () => { try { await api.logout() } finally { clearSession(); window.location.href = '/login' } })
+</script>

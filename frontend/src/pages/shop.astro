@@ -1,0 +1,23 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import Header from '../components/Header.astro'
+---
+<MainLayout title="Shop | electro."><Header /><main class="container-electro py-10"><div class="mb-8"><p class="text-sm font-bold uppercase tracking-widest text-electro-yellow-dark">Catálogo</p><h1 class="font-display text-4xl font-bold text-electro-navy">Todos los productos</h1></div><form data-shop-filter class="mb-8 grid gap-3 rounded-lg bg-slate-50 p-5 sm:grid-cols-[1fr_220px_auto]"><input name="modelo" class="rounded border border-slate-200 px-4 py-3" placeholder="Buscar por modelo" /><select name="categoria" class="rounded border border-slate-200 bg-white px-4 py-3"><option value="">Todas las categorías</option><option value="celular">Celulares</option><option value="laptop">Laptops</option><option value="monitor">Monitores</option><option value="teclado">Teclados</option><option value="mouse">Mouse</option><option value="audifonos">Audífonos</option></select><button class="rounded bg-electro-yellow px-6 py-3 font-bold">Buscar</button></form><div data-shop-products class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><p class="col-span-full py-12 text-center text-electro-muted">Cargando catálogo...</p></div><div data-shop-message class="mt-6 text-center text-sm text-red-600"></div></main></MainLayout>
+<script>
+  import { api } from '../lib/api'
+  import { formatPrice } from '../lib/formatPrice'
+  import { productImage } from '../lib/productImages'
+  const form = document.querySelector('[data-shop-filter]') as HTMLFormElement | null
+  const selectedCategory = new URLSearchParams(window.location.search).get('categoria')
+  if (selectedCategory && form) {
+    const categoryField = form.elements.namedItem('categoria') as HTMLSelectElement
+    categoryField.value = selectedCategory
+    categoryField.classList.add('category-selected')
+  }
+  const grid = document.querySelector('[data-shop-products]')
+  const message = document.querySelector('[data-shop-message]')
+  const images: Record<string, string> = { celular: '/images/category-cellular.svg', laptop: '/images/category-laptop.svg', monitor: '/images/category-monitor.svg', teclado: '/images/category-keyboard.svg', mouse: '/images/category-mouse.svg', audifonos: '/images/category-headphones.svg' }
+  async function load() { if (!grid || !form) return; const params = Object.fromEntries(new FormData(form)); try { const data = await api.products({ modelo: String(params.modelo || ''), categoria: String(params.categoria || ''), limit: 40 }); grid.innerHTML = data.items.map((p) => { const price = formatPrice(p.precio); const messageText = encodeURIComponent(`Hola, quiero comprar el producto: ${p.modelo_producto}. Precio: ${price}.`); const stock = p.stock > 0 ? `${p.stock} disponibles` : 'Agotado'; return `<article class="product-card group p-4"><a href="/producto?id=${p.identificador_producto}"><div class="product-card-media flex h-44 items-center justify-center"><img src="${productImage(p.identificador_producto, p.categoria, p.imagen_url)}" alt="${p.modelo_producto}" class="h-36 w-36 object-contain"></div><p class="product-card-category mt-4">${p.categoria}</p><h2 class="mt-1 min-h-10 font-bold text-electro-blue">${p.modelo_producto}</h2><div class="mt-3 flex items-center justify-between"><strong class="product-card-price">${price}</strong><span class="text-xs ${p.stock > 0 ? 'text-green-600' : 'text-red-500'}">${stock}</span></div></a><a href="https://wa.me/59172365287?text=${messageText}" target="_blank" rel="noreferrer" class="product-card-action mt-4 block rounded-full bg-electro-yellow px-3 py-2 text-center text-sm font-bold text-white hover:bg-electro-yellow-dark">Comprar por WhatsApp</a></article>` }).join('') || '<p class="col-span-full py-12 text-center">No se encontraron productos.</p>' } catch (error) { if (message) message.textContent = error instanceof Error ? `${error.message}. Inicia sesión para consultar el catálogo.` : 'No se pudo cargar el catálogo.' } }
+  form?.addEventListener('submit', (event) => { event.preventDefault(); void load() }); void load()
+</script>
+

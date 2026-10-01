@@ -1,0 +1,51 @@
+---
+import MainLayout from '../../../layouts/MainLayout.astro'
+import Header from '../../../components/Header.astro'
+---
+<MainLayout title="Editar producto | electro."><Header /><main class="container-electro py-12"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-widest text-electro-yellow-dark">Administración</p><h1 class="font-display text-4xl font-bold text-electro-navy">Editar producto</h1><p class="mt-2 text-electro-muted">Actualiza los datos del producto seleccionado.</p></div><a href="/admin/productos" class="font-bold text-electro-blue">← Volver a productos</a></div><form data-edit-form class="mx-auto mt-8 max-w-xl space-y-4 rounded-xl border border-slate-100 bg-white p-6 shadow-sm"><p data-edit-loading class="text-electro-muted">Cargando producto...</p><div data-edit-fields class="hidden space-y-4"><input name="modelo_producto" required placeholder="Modelo del producto" class="w-full rounded border border-slate-300 px-3 py-2" /><input name="precio" required type="number" min="0.01" step="0.01" placeholder="Precio en Bs." aria-label="Precio en bolivianos" class="w-full rounded border border-slate-300 px-3 py-2" /><input name="stock" required type="number" min="0" step="1" placeholder="Stock" class="w-full rounded border border-slate-300 px-3 py-2" /><select name="categoria" required class="w-full rounded border border-slate-300 bg-white px-3 py-2"><option value="">Categoría</option><option>celular</option><option>laptop</option><option>monitor</option><option>teclado</option><option>mouse</option><option>audifonos</option></select><input name="imagen_url" type="url" placeholder="URL de imagen (opcional)" aria-label="URL opcional de imagen del producto" class="w-full rounded border border-slate-300 px-3 py-2" /><p data-edit-message class="min-h-5 text-sm text-red-600"></p><div class="flex gap-2"><button class="flex-1 rounded bg-electro-yellow px-4 py-2 font-bold">Guardar cambios</button><a href="/admin/productos" class="rounded border px-4 py-2 font-bold">Cancelar</a></div></div></form></main></MainLayout>
+<script>
+  import { api } from '../../../lib/api'
+  import { productSchema } from '../../../lib/schemas'
+  import { requireSession } from '../../../lib/session'
+
+  requireSession()
+  const form = document.querySelector('[data-edit-form]') as HTMLFormElement | null
+  const fields = document.querySelector('[data-edit-fields]')
+  const loading = document.querySelector('[data-edit-loading]')
+  const message = document.querySelector('[data-edit-message]')
+  const id = Number(new URLSearchParams(window.location.search).get('id'))
+
+  function setMessage(text: string) { if (message) message.textContent = text }
+
+  async function loadProduct() {
+    try {
+      if (!Number.isInteger(id) || id <= 0) throw new Error('Producto no válido')
+      const product = await api.product(id)
+      if (!form) return
+      ;(form.elements.namedItem('modelo_producto') as HTMLInputElement).value = product.modelo_producto
+      ;(form.elements.namedItem('precio') as HTMLInputElement).value = String(product.precio)
+      ;(form.elements.namedItem('stock') as HTMLInputElement).value = String(product.stock)
+      ;(form.elements.namedItem('categoria') as HTMLSelectElement).value = product.categoria
+      ;(form.elements.namedItem('imagen_url') as HTMLInputElement).value = product.imagen_url ?? ''
+      loading?.classList.add('hidden')
+      fields?.classList.remove('hidden')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'No se pudo cargar el producto')
+      loading?.classList.add('hidden')
+    }
+  }
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    const parsed = productSchema.safeParse(Object.fromEntries(new FormData(form)))
+    if (!parsed.success) { setMessage(parsed.error.issues[0]?.message ?? 'Revisa los datos'); return }
+    try {
+      await api.updateProduct(id, parsed.data)
+      window.location.href = '/admin/productos'
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'No se pudieron guardar los cambios')
+    }
+  })
+
+  void loadProduct()
+</script>

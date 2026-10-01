@@ -1,0 +1,32 @@
+﻿---
+import MainLayout from '../../layouts/MainLayout.astro'
+import Header from '../../components/Header.astro'
+---
+<MainLayout title="Productos | electro."><Header /><main class="container-electro py-12"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-widest text-electro-yellow-dark">Administración</p><h1 class="font-display text-4xl font-bold text-electro-navy">Gestionar productos</h1><p class="mt-2 text-electro-muted">Administra el catálogo desde interfaces independientes.</p></div><div class="flex gap-3"><a href="/admin/productos/nuevo" class="rounded bg-electro-yellow px-5 py-3 font-bold">Nuevo producto</a><a href="/admin" class="font-bold text-electro-blue">← Panel</a></div></div><section class="mt-8"><div data-admin-products class="overflow-x-auto rounded-xl border border-slate-100"><p class="p-8 text-center text-electro-muted">Cargando productos...</p></div></section></main></MainLayout>
+<script>
+  import { api } from '../../lib/api'
+  import { formatPrice } from '../../lib/formatPrice'
+  import { requireSession } from '../../lib/session'
+
+  requireSession()
+  const grid = document.querySelector('[data-admin-products]')
+
+  async function load() {
+    try {
+      const data = await api.products({ limit: 100 })
+      if (!grid) return
+      grid.innerHTML = `<table class="w-full text-left text-sm"><thead class="bg-slate-50"><tr><th class="p-4">Modelo</th><th class="p-4">Categoría</th><th class="p-4">Precio (Bs.)</th><th class="p-4">Stock</th><th class="p-4">Acciones</th></tr></thead><tbody>${data.items.map((p) => `<tr class="border-t"><td class="p-4 font-bold">${p.modelo_producto}</td><td class="p-4">${p.categoria}</td><td class="p-4">${formatPrice(p.precio)}</td><td class="p-4">${p.stock}</td><td class="p-4"><a href="/admin/productos/editar?id=${p.identificador_producto}" class="mr-3 font-bold text-electro-blue">Editar</a><button data-delete="${p.identificador_producto}" class="font-bold text-red-600">Eliminar</button></td></tr>`).join('')}</tbody></table>`
+      grid.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => remove(Number((button as HTMLElement).dataset.delete))))
+    } catch (error) {
+      if (grid) grid.innerHTML = `<p class="p-8 text-red-600">${error instanceof Error ? error.message : 'No se pudo cargar'}</p>`
+    }
+  }
+
+  async function remove(id: number) {
+    if (!confirm('¿Eliminar este producto?')) return
+    await api.deleteProduct(id)
+    await load()
+  }
+
+  void load()
+</script>

@@ -1,0 +1,9 @@
+﻿---
+import type { Producto } from '../lib/types'
+import { formatPrice } from '../lib/formatPrice'
+import { productImage } from '../lib/productImages'
+const { product } = Astro.props as { product: Producto }
+---
+<article class="product-card group p-4"><a href={`/producto?id=${product.identificador_producto}`}><div class="product-card-media flex h-44 items-center justify-center"><img src={productImage(product.identificador_producto, product.categoria, product.imagen_url)} alt={product.modelo_producto} class="h-36 w-36 object-contain" /></div><p class="product-card-category mt-4">{product.categoria}</p><h3 class="mt-3 min-h-10 font-bold leading-tight text-electro-blue">{product.modelo_producto}</h3><div class="mt-4 flex items-center justify-between"><strong class="product-card-price">{formatPrice(product.precio)}</strong><span class:list={{ 'text-green-600': product.stock > 0, 'text-red-500': product.stock === 0 }} class="text-xs font-semibold">{product.stock > 0 ? `${product.stock} disponibles` : 'Agotado'}</span></div></a><a href={`https://wa.me/59172365287?text=${encodeURIComponent(`Hola, quiero comprar el producto: ${product.modelo_producto}. Precio: ${formatPrice(product.precio)}.` )}`} target="_blank" rel="noreferrer" class="product-card-action mt-4 block rounded-full bg-electro-yellow px-3 py-2 text-center text-sm font-bold text-white hover:bg-electro-yellow-dark">Comprar por WhatsApp</a></article>
+
+

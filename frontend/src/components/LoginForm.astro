@@ -1,0 +1,11 @@
+---
+---
+<form data-login-form class="space-y-5"><div><label for="usuario" class="mb-2 block text-sm font-bold text-electro-navy">Usuario</label><input id="usuario" name="usuario" maxlength="15" required class="focus-electro w-full rounded border border-slate-300 px-4 py-3 outline-none focus:border-electro-yellow" placeholder="Frankcode" /></div><div><label for="contrasena" class="mb-2 block text-sm font-bold text-electro-navy">Contraseña</label><input id="contrasena" name="contrasena" type="password" maxlength="60" required class="focus-electro w-full rounded border border-slate-300 px-4 py-3 outline-none focus:border-electro-yellow" placeholder="Tu contraseña" /></div><p data-login-message class="min-h-5 text-sm text-red-600"></p><button class="w-full rounded-full bg-electro-yellow px-6 py-3 font-bold text-electro-navy transition hover:bg-electro-yellow-dark">Iniciar sesión</button></form>
+<script>
+  import { api } from '../lib/api'
+  import { loginSchema } from '../lib/schemas'
+  import { saveSession } from '../lib/session'
+  const form = document.querySelector('[data-login-form]') as HTMLFormElement | null
+  const message = document.querySelector('[data-login-message]')
+  form?.addEventListener('submit', async (event) => { event.preventDefault(); if (!form) return; const values = Object.fromEntries(new FormData(form)); const parsed = loginSchema.safeParse(values); if (!parsed.success) { if (message) message.textContent = parsed.error.issues[0]?.message ?? 'Revisa los datos'; return } try { const result = await api.login(parsed.data); saveSession(result); window.location.href = '/admin' } catch (error) { if (message) message.textContent = error instanceof Error ? error.message : 'No se pudo iniciar sesión' } })
+</script>

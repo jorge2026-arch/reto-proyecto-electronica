@@ -1,0 +1,10 @@
+---
+import MainLayout from '../layouts/MainLayout.astro'
+import Header from '../components/Header.astro'
+import Hero from '../components/Hero.astro'
+import PromoCards from '../components/PromoCards.astro'
+import ProductGrid from '../components/ProductGrid.astro'
+import CategoryShowcase from '../components/CategoryShowcase.astro'
+import WhyBuy from '../components/WhyBuy.astro'
+---
+<MainLayout><Header /><main><Hero /><CategoryShowcase /><PromoCards /><ProductGrid /><WhyBuy /></main><footer class="mt-10 bg-electro-navy py-8 text-center text-sm text-white">© {new Date().getFullYear()} Tienda Loren · Tecnología para todos · <a href="https://wa.me/59172365287" target="_blank" rel="noreferrer" class="underline">WhatsApp 72365287</a></footer></MainLayout>

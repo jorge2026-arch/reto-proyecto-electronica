@@ -1,0 +1,21 @@
+---
+---
+<section class="container-electro glass-surface reveal-on-scroll rounded-2xl px-5 py-8" data-product-grid><div class="mb-6 flex items-end justify-between"><div><p class="text-sm font-bold uppercase tracking-widest text-electro-yellow-dark">Nuestra selección</p><h2 class="font-display text-3xl font-semibold text-electro-navy">Productos destacados</h2></div><a href="/shop" class="hidden text-sm font-bold text-electro-blue sm:block">Ver todos →</a></div><div data-products class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><div class="col-span-full py-12 text-center text-electro-muted">Cargando productos...</div></div><p data-products-error class="hidden py-8 text-center text-red-600"></p></section>
+<script>
+  import { api } from '../lib/api'
+  import { clearSession } from '../lib/session'
+  import { formatPrice } from '../lib/formatPrice'
+  import { productImage } from '../lib/productImages'
+  import type { ProductListData } from '../lib/types'
+  const root = document.querySelector('[data-product-grid]')
+  const container = root?.querySelector('[data-products]')
+  const error = root?.querySelector('[data-products-error]')
+  
+  function render(data: ProductListData) {
+    if (!container) return
+    container.innerHTML = data.items.length ? data.items.map((p) => { const price = formatPrice(p.precio); const message = encodeURIComponent(`Hola, quiero comprar el producto: ${p.modelo_producto}. Precio: ${price}.`); const stock = p.stock > 0 ? `${p.stock} disponibles` : 'Agotado'; return `<article class="product-card group p-4"><a href="/producto?id=${p.identificador_producto}"><div class="product-card-media flex h-44 items-center justify-center"><img src="${productImage(p.identificador_producto, p.categoria, p.imagen_url)}" alt="${p.modelo_producto}" class="h-36 w-36 object-contain transition group-hover:scale-105"></div><p class="product-card-category mt-4">${p.categoria}</p><h3 class="mt-1 min-h-10 font-bold leading-tight text-electro-blue">${p.modelo_producto}</h3><div class="mt-3 flex items-center justify-between"><strong class="product-card-price">${price}</strong><span class="text-xs ${p.stock > 0 ? 'text-green-600' : 'text-red-500'}">${stock}</span></div></a><a href="https://wa.me/59172365287?text=${message}" target="_blank" rel="noreferrer" class="product-card-action mt-4 block rounded-full bg-electro-yellow px-3 py-2 text-center text-sm font-bold text-white hover:bg-electro-yellow-dark">Comprar por WhatsApp</a></article>` }).join('') : '<div class="col-span-full py-12 text-center text-electro-muted">No hay productos para mostrar.</div>'
+  }
+  try { const data = await api.products({ limit: 8 }); render(data) } catch (err) { if (error) { error.textContent = 'Inicia sesión para consultar el catálogo.'; error.classList.remove('hidden') } if (container) container.innerHTML = '<div class="col-span-full rounded border border-yellow-200 bg-yellow-50 p-6 text-center text-electro-ink">El catálogo requiere una sesión de administrador. <a class="font-bold text-electro-blue underline" href="/login">Iniciar sesión</a></div>' }
+  void clearSession
+</script>
+

@@ -1,0 +1,14 @@
+---
+const categories = [
+  { name: 'Celulares', value: 'celular', image: '/images/category-cellular.svg', description: 'Conecta con lo que importa.' },
+  { name: 'Laptops', value: 'laptop', image: '/images/category-laptop.svg', description: 'Rendimiento para tus proyectos.' },
+  { name: 'Audífonos', value: 'audifonos', image: '/images/category-headphones.svg', description: 'Escucha cada detalle.' },
+  { name: 'Accesorios', value: 'teclado', image: '/images/category-keyboard.svg', description: 'Complementos para tu equipo.' },
+]
+---
+<section class="container-electro gradient-section reveal-on-scroll rounded-2xl px-5 py-8" aria-labelledby="categories-title">
+  <div class="mb-5"><p class="text-sm font-bold uppercase tracking-widest text-electro-yellow-dark">Explora la tienda</p><h2 id="categories-title" class="font-display text-3xl font-semibold text-electro-navy">Compra por categoría</h2></div>
+  <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    {categories.map((category) => <a href={`/shop?categoria=${category.value}`} class="category-link gradient-card group rounded-xl border border-white/80 p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-electro-blue hover:shadow-md"><div class="mx-auto flex h-28 items-center justify-center rounded-lg bg-white/70"><img src={category.image} alt={category.name} class="h-24 w-24 object-contain transition group-hover:scale-110" /></div><h3 class="mt-4 font-display font-bold text-electro-navy">{category.name}</h3><p class="mt-1 text-xs text-electro-muted">{category.description}</p><span class="mt-3 inline-block text-sm font-bold text-electro-blue">Ver productos →</span></a>)}
+  </div>
+</section>

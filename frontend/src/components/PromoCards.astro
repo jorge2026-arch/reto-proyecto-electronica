@@ -1,0 +1,10 @@
+---
+const promos = [
+  { image: '/images/promo-camera.svg', title: 'Captura las grandes', strong: 'OFERTAS', suffix: 'en las cámaras' },
+  { image: '/images/promo-laptop.svg', title: 'Tabletas, teléfonos', strong: 'INTELIGENTES', suffix: 'y más' },
+  { image: '/images/promo-computer.svg', title: 'Compra los productos', strong: 'MÁS POPULARES', suffix: '' },
+]
+---
+<section class="container-electro reveal-on-scroll grid gap-5 py-7 md:grid-cols-3">
+  {promos.map((promo) => <a href="/shop" class="gradient-card flex items-center gap-4 rounded-xl border border-white/70 p-4 transition hover:brightness-105"><img src={promo.image} alt="" class="h-20 w-28 object-contain" /><div class="text-sm uppercase leading-tight text-electro-muted"><p>{promo.title}</p><strong class="block text-electro-ink">{promo.strong}</strong><p>{promo.suffix} <span class="text-electro-yellow-dark">●</span></p></div></a>)}
+</section>
